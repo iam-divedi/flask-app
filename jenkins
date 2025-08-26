@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/iam-divedi/flask-app.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                sh 'pytest'
+            }
+        }
+    }
+
+    post {
+        success {
+            emailext (
+                subject: "✅ Build Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build succeeded!\n\nCheck Jenkins for details.",
+                to: "your-email@example.com"
+            )
+        }
+        failure {
+            emailext (
+                subject: "❌ Build Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Build failed!\n\nCheck Jenkins for details.",
+                to: "your-email@example.com"
+            )
+        }
+    }
+}
